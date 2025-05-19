@@ -16,6 +16,7 @@ public class User {
     private Long id;
 
     // 중복 불가
+    // 아이디
     @Column(nullable = false, unique = true)
     private String userid;
 
