@@ -15,5 +15,4 @@ public class SignupRequestDto {
     private String grade;
     private String gender;
     private String description;
-    private String photoUrl;
 }
