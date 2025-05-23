@@ -11,6 +11,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,14 +30,6 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    @RestControllerAdvice
-    public class GlobalExceptionHandler {
-        // 예외 처리 메서드 추가
-        @ExceptionHandler(IllegalArgumentException.class)
-        public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
     // 회원가입
     public void signup(SignupRequestDto dto) {
         String photoPath = null;
@@ -51,6 +49,21 @@ public class UserService {
             // DB에는 상대경로로 저장
             photoPath = "/uploads/" + fileName; // 저장된 파일의 경로
         }
+        //사진 저장 처리
+        String photoUrl = null;
+        try {
+            if(photo != null && !photo.isEmpty()){
+                // 사진 저장 로직
+                String filename = UUID.randomUUID() + "_" + photo.getOriginalFilename();
+                Path savePath = Paths.get("uploads", filename);
+                Files.createDirectories(savePath.getParent());// 디렉토리가 없으면 생성한다
+                photo.transferTo(savePath.toFile()); // 파일 저장
+                photoUrl = "/uploads/" + filename; // 저장된 파일의 URL 사용자에게 노출된다.
+            }
+        }
+        catch (Exception e) {
+            throw new RuntimeException("사진 저장에 실패했습니다.", e);
+        }
 
         User user = User.builder()
                 .userid(dto.getUserid())
@@ -61,7 +74,7 @@ public class UserService {
                 .grade(dto.getGrade())
                 .gender(dto.getGender())
                 .description(dto.getDescription())
-                .photoUrl(photoPath) // ✅ 여기 수정됨
+                .photoUrl(photoPath)
                 .build();
 
         userRepository.save(user);
@@ -74,3 +87,4 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 }
+

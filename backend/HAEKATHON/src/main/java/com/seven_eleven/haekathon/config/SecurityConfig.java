@@ -42,6 +42,7 @@ public class SecurityConfig {
                                 "/api/signup",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
+                                "/v3/api-docs",
                                 "/swagger-resources/**",
                                 "/swagger-ui.html",
                                 "/webjars/**",
@@ -51,6 +52,7 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtill), UsernamePasswordAuthenticationFilter.class)
                 .build();
+
     }
 
 }

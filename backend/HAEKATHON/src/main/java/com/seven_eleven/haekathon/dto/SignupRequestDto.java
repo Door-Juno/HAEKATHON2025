@@ -17,4 +17,5 @@ public class SignupRequestDto {
     private String gender;
     private String description;
     private MultipartFile photoUrl;
+
 }
