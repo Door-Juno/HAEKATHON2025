@@ -49,21 +49,6 @@ public class UserService {
             // DB에는 상대경로로 저장
             photoPath = "/uploads/" + fileName; // 저장된 파일의 경로
         }
-        //사진 저장 처리
-        String photoUrl = null;
-        try {
-            if(photo != null && !photo.isEmpty()){
-                // 사진 저장 로직
-                String filename = UUID.randomUUID() + "_" + photo.getOriginalFilename();
-                Path savePath = Paths.get("uploads", filename);
-                Files.createDirectories(savePath.getParent());// 디렉토리가 없으면 생성한다
-                photo.transferTo(savePath.toFile()); // 파일 저장
-                photoUrl = "/uploads/" + filename; // 저장된 파일의 URL 사용자에게 노출된다.
-            }
-        }
-        catch (Exception e) {
-            throw new RuntimeException("사진 저장에 실패했습니다.", e);
-        }
 
         User user = User.builder()
                 .userid(dto.getUserid())
