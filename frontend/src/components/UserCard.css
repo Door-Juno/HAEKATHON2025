@@ -1,0 +1,85 @@
+
+.user-card {
+  position: relative;
+  width: 1247px;
+  height: 333px;
+  background: #ffffff; /* 1번 스타일 */
+  border-radius: 50px;
+  border: 1px solid #ccc;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 1번 그림자 */
+  font-family: 'Pretendard', sans-serif;
+}
+
+.user-img {
+  position: absolute;
+  left: 24px;
+  top: 47px;
+  width: 143px;
+  height: 143px;
+  border-radius: 512px;
+  object-fit: cover;
+}
+
+.user-info {
+  position: absolute;
+  font-size: 22px; /* 1번 기준과 2번의 절충안 */
+  font-weight: bold;
+  color: black;
+  text-align: center;
+  line-height: 20px;
+}
+
+.user-info.major {
+  left: 207px;
+  top: 74px;
+}
+.user-info.grade {
+  left: 369px;
+  top: 73px;
+}
+.user-info.number {
+  left: 528px;
+  top: 74px;
+}
+.user-info.gender {
+  left: 718px;
+  top: 74px;
+}
+
+.user-intro {
+  position: absolute;
+  left: 207px;
+  top: 121px;
+  width: 1001px;
+  height: 126px;
+  font-size: 16px; /* 가독성을 고려한 크기로 조정 */
+  font-weight: 400;
+  color: #444;
+  text-align: left;
+  line-height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.message-button {
+  position: absolute;
+  left: 949px;
+  top: 247px;
+  width: 213px;
+  height: 58px;
+  background: #4b72fa; /* 1번 기준 색상 */
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.message-button:hover {
+  background-color: #3451c5;
+}

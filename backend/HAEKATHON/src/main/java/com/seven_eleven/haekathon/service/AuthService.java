@@ -22,13 +22,18 @@ public class AuthService {
         // 아이디가 존재하지 않으면 예외 발생
         User user = userRepository.findByUserid(request.getUserid())
                 .orElseThrow(() -> new RuntimeException("아이디가 존재하지 않습니다."));
+        // 로그 출력용입니다 ~
+        System.out.println("🔐 입력된 비밀번호: " + request.getPassword());
+        System.out.println("🔐 DB 저장된 비밀번호: " + user.getPassword());
+        System.out.println("🔐 일치 여부: " + passwordEncoder.matches(request.getPassword(), user.getPassword()));
         // 비밀번호가 일치하지 않으면 예외 발생
         // 비밀번호는 암호화되어 저장되므로, 입력된 비밀번호를 암호화하여 비교
         if(!passwordEncoder.matches(request.getPassword(), user.getPassword())){
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
         // JWT 토큰 생성
-        String token = jwtUtil.generateToken(user);
+        String token = jwtUtil.generateToken(user.getUserid());
+
         return new LoginResponse(token, user.getId(),user.getName());
     }
 }
