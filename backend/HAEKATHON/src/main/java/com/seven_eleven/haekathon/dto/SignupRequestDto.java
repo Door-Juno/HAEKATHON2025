@@ -2,6 +2,7 @@ package com.seven_eleven.haekathon.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class SignupRequestDto {
@@ -15,5 +16,5 @@ public class SignupRequestDto {
     private String grade;
     private String gender;
     private String description;
-    private String photoUrl;
+    private MultipartFile photoUrl;
 }
