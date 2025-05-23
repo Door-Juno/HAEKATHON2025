@@ -25,18 +25,19 @@ export default function LoginPage() {
         password: password,
       });
       // 로그인 성공 시
-      const {token, username} = response.data;
+      const {token, name} = response.data;
 
       // 토큰 저장
       localStorage.setItem('token', token);
-      localStorage.setItem('username', username);
-      setUsername(username);
+      localStorage.setItem('username', name);
+      setUsername(name);
 
       // axios 인스턴스에 토큰 설정
+      // 디폴트 헤더를 토큰으로 설정하여 매 요청마다 토큰을 포함시킵니다.
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
 
-      alert(`${username}님 환영합니다!`);
+      alert(`${name}님 환영합니다!`);
       navigate('/board');
     }
     catch (error) {

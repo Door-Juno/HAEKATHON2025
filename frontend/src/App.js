@@ -14,6 +14,7 @@ function App() {
     const [username, setUsername] = useState('');
 
     // 앱 로드 시 토큰 복구
+    // 새로고침시 토큰을 localStorage에서 가져와서 axios의 기본 헤더에 설정
     useEffect(() => {
         const token = localStorage.getItem('token');
         const storedUsername = localStorage.getItem('username');

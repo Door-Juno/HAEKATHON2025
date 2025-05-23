@@ -16,5 +16,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedHeaders("*") // 허용할 헤더
                 .allowCredentials(true); // 자격 증명 허용 여부
     }
+
+    //정적 리소스 매핑
+    @Override
+    public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry){
+        String uploadPath = System.getProperty("user.dir")+"/uploads/";
+        registry.addResourceHandler("/uploads/**")
+                .addResourceLocations("file:"+uploadPath);
+    }
 }
 

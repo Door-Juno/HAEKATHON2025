@@ -32,6 +32,7 @@ export default function BoardPage() {
       user && user.name && user.userId && user.major && user.studentId
   );
 
+
   return (
     <div className="board-wrapper">
       {/* 상단 유저 정보 + 로그아웃 */}

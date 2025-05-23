@@ -40,14 +40,16 @@ public class UserService {
             // 예시: uploads 디렉토리에 파일 저장
             String uploadDir = System.getProperty("user.dir") + "/uploads/";
             String fileName = UUID.randomUUID() + "_" + dto.getPhotoUrl().getOriginalFilename();
-            photoPath = uploadDir + fileName;
+
+            File dest = new File(uploadDir + fileName);
+            dest.getParentFile().mkdirs();
             try {
-                File dest = new File(photoPath);
-                dest.getParentFile().mkdirs(); // 부모 디렉토리 생성
                 dto.getPhotoUrl().transferTo(dest);
             } catch (IOException e) {
                 throw new RuntimeException("파일 저장 실패", e);
             }
+            // DB에는 상대경로로 저장
+            photoPath = "/uploads/" + fileName; // 저장된 파일의 경로
         }
 
         User user = User.builder()
