@@ -1,0 +1,100 @@
+
+.signup-page {
+  background-color: #e0e0e0;
+  padding: 40px;
+  font-family: 'Pretendard', sans-serif;
+  min-height: 100vh;
+}
+
+.signup-page h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.signup-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  background-color: #d3d3d3;
+  padding: 40px;
+  border-radius: 10px;
+}
+
+.form-left,
+.form-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 300px;
+}
+
+input[type='text'],
+input[type='password'],
+textarea {
+  padding: 10px;
+  border: 1px solid #999;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+textarea {
+  resize: none;
+}
+
+.grade-buttons,
+.gender-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.grade-buttons button,
+.gender-buttons button {
+  padding: 8px 16px;
+  background-color: #fff;
+  border: 1px solid #444;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.grade-buttons button.selected,
+.gender-buttons button.selected {
+  background-color: #4b72fa;
+  color: white;
+  font-weight: bold;
+}
+
+.signup-btn {
+  margin-top: 20px;
+  padding: 12px 24px;
+  background-color: #000;
+  color: #fff;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.signup-btn:hover {
+  background-color: #333;
+}
+
+.form-submit {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* ✅ 이미지 업로드 미리보기 (2번에서 추가) */
+.profile-section {
+  margin-bottom: 20px;
+}
+
+.profile-preview {
+  margin-top: 10px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #aaa;
+}

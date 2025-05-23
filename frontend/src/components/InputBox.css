@@ -1,0 +1,26 @@
+
+.input-box {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+
+.input-label {
+  margin-bottom: 8px;
+  font-size: 16px;
+  text-transform: uppercase;
+  color: #333;
+}
+
+.input-field {
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid black;
+  border-radius: 4px;
+}
+
+.input-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 12px;
+}
