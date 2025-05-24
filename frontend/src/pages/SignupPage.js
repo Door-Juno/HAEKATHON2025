@@ -95,7 +95,7 @@ export default function SignupPage() {
                 onChange={handleChange('major')}
             />
             <InputBox
-                label="Student ID"
+                label="Student ID Prefix"
                 value={formData.studentId}
                 onChange={handleChange('studentId')}
             />
@@ -137,7 +137,7 @@ export default function SignupPage() {
               ))}
             </div>
 
-            <label>자기소개</label>
+            <label>자기소개 100자 내외로 표현해주세요.</label>
             <textarea
                 name="description"
                 value={formData.description}

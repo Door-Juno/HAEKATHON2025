@@ -36,8 +36,8 @@ export default function LoginPage() {
       // 디폴트 헤더를 토큰으로 설정하여 매 요청마다 토큰을 포함시킵니다.
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-
       alert(`${name}님 환영합니다!`);
+
       navigate('/board');
     }
     catch (error) {

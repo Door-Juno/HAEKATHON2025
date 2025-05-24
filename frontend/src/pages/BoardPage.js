@@ -12,11 +12,12 @@ export default function BoardPage() {
   const { username } = useContext(UserContext);
   const [users, setUsers] = useState([]);
 
-  // ✅ 페이지 로드 시 유저 목록 불러오기
+  // 페이지 로드 시 유저 목록 불러오기
   useEffect(() => {
       const fetchUsers = async () => {
           try {
-              const response = await api.get('/api/users');
+              // 나를 제외한 다른 유저 목록 불러오기
+              const response = await api.get('/api/users/exclude-me');
               setUsers(response.data);
           }
           catch (error) {
@@ -26,7 +27,7 @@ export default function BoardPage() {
       fetchUsers();
   }, []);
 
-  // ✅ 유효한 사용자만 필터링
+  // 유효한 사용자만 필터링
   const validUsers = users.filter(
     (user) =>
       user && user.name && user.userId && user.major && user.studentId
@@ -58,8 +59,8 @@ export default function BoardPage() {
             key={index}
             name={user.name}
             major={user.major}
-            grade={user.grade}
-            number={user.studentId}
+            grade={user.grade + '학년'}
+            number={user.studentId+ '학번'}
             gender={user.gender}
             intro={user.description}
             image={
