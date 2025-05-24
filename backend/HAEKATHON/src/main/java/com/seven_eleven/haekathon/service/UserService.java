@@ -71,5 +71,12 @@ public class UserService {
                 .map(UserResponseDto::from)
                 .collect(Collectors.toList());
     }
+
+    public List<UserResponseDto> getAllUsersNotMe(Long currentUserId) {
+        return userRepository.findAll().stream()
+                .filter(user -> !user.getId().equals(currentUserId))
+                .map(UserResponseDto::from)
+                .collect(Collectors.toList());
+    }
 }
 

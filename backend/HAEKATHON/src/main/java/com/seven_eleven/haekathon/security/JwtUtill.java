@@ -20,9 +20,9 @@ public class JwtUtill {
     private final Key key = Keys.hmacShaKeyFor("yourSecretKey123!yourSecretKey123!".getBytes(StandardCharsets.UTF_8));
     private final long EXPIRATION_TIME = 86400000; // 1 day
 
-    public String generateToken(String username) {
+    public String generateToken(Long userId) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -53,4 +53,11 @@ public class JwtUtill {
         User principal = new User(username, "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
         return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
     }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody();
+        return Long.parseLong(claims.getSubject());  // subject에 userId 있음
+    }
+
 }
