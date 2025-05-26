@@ -4,54 +4,53 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import BoardPage from './pages/BoardPage';
-// import ChatPage from './pages/ChatPage';
+import ChatPage from './pages/ChatPage'; // 채팅 페이지
 
 import UserContext from './UserContext';
 import PrivateRoute from './components/PrivateRoute';
 import api from './api/axios';
 
 function App() {
-    const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('');
 
-    // 앱 로드 시 토큰 복구
-    // 새로고침시 토큰을 localStorage에서 가져와서 axios의 기본 헤더에 설정
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        const storedUsername = localStorage.getItem('username');
-        if (token) {
-            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        }
-        if (storedUsername) {
-            setUsername(storedUsername);
-        }
-    }, []);
+  // 앱 로드 시 토큰 복구
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedUsername = localStorage.getItem('username');
+    if (token) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
 
-    return (
-        <UserContext.Provider value={{ username, setUsername }}>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<LoginPage />} />
-                    <Route path="/signup" element={<SignupPage />} />
-                    <Route
-                        path="/board"
-                        element={
-                            <PrivateRoute>
-                                <BoardPage />
-                            </PrivateRoute>
-                        }
-                    />
-                    {/* <Route
+  return (
+    <UserContext.Provider value={{ username, setUsername }}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route
+            path="/board"
+            element={
+              <PrivateRoute>
+                <BoardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/chat"
             element={
               <PrivateRoute>
                 <ChatPage />
               </PrivateRoute>
             }
-          /> */}
-                </Routes>
-            </Router>
-        </UserContext.Provider>
-    );
+          />
+        </Routes>
+      </Router>
+    </UserContext.Provider>
+  );
 }
 
 export default App;
