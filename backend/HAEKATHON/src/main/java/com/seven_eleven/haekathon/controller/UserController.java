@@ -43,4 +43,25 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    //로그인 한 유저의 정보 불러오기
+    @GetMapping("/users/me")
+    public ResponseEntity<UserResponseDto> getUser(@RequestHeader("Authorization") String token) {
+        Long CurrentUserId = jwtUtill.getUserIdFromToken(token.replace("Bearer ", ""));
+        UserResponseDto user = userService.getUserById(CurrentUserId);
+        return ResponseEntity.ok(user);
+    }
+
+    //특정 id의 정보 불러오기
+    @GetMapping("/users/{id}")
+    public ResponseEntity<UserResponseDto> getUserById(@PathVariable Long id) {
+        UserResponseDto user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+
+    //특정 id의 정보 삭제하기
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        UserResponseDto user = userService.deleteUserById(id);
+        return ResponseEntity.ok("delete");
+    }
 }

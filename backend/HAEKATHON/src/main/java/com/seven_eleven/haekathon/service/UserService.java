@@ -78,5 +78,15 @@ public class UserService {
                 .map(UserResponseDto::from)
                 .collect(Collectors.toList());
     }
-}
 
+    public UserResponseDto getUserById(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        return UserResponseDto.from(user);
+    }
+
+    public UserResponseDto deleteUserById(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        userRepository.delete(user);
+        return UserResponseDto.from(user);
+    }
+}
