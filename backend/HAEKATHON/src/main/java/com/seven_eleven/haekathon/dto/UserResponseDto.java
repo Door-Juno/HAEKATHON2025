@@ -9,6 +9,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class UserResponseDto {
+    private Long id;
     private String name;
     private String userId;
     private String major;
@@ -20,6 +21,7 @@ public class UserResponseDto {
 
     public static UserResponseDto from(User user) {
         return UserResponseDto.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .userId(user.getUserid())
                 .major(user.getMajor())

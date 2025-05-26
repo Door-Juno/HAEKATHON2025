@@ -16,6 +16,7 @@ export default function BoardPage() {
     const fetchUsers = async () => {
       try {
         const response = await api.get('/api/users/exclude-me');
+        console.log("불러온 유저 목록:", response.data);
         setUsers(response.data);
       } catch (error) {
         console.error('유저 목록 불러오기 실패:', error);
@@ -71,14 +72,15 @@ export default function BoardPage() {
                 : 'https://placehold.co/143'
             }
             onChat={() =>
-              navigate('/chat', {
-                state: {
-                  targetUser: user.name,
-                  targetImage: user.photoUrl
-                    ? `http://localhost:8080${user.photoUrl}`
-                    : 'https://placehold.co/143',
-                },
-              })
+                navigate('/chat', {
+                    state: {
+                        targetUserId: user.id,
+                        targetUserName: user.name,
+                        targetImage: user.photoUrl
+                            ? `http://localhost:8080${user.photoUrl}`
+                            : 'https://placehold.co/143'
+                    }
+                })
             }
           />
         ))}

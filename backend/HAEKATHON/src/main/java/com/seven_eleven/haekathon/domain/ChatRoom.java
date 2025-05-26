@@ -25,7 +25,7 @@ public class ChatRoom {
     private User user2;
 
     // 대화방 식별자
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String roomKey;
 
 }
