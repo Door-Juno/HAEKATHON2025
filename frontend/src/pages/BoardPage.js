@@ -47,7 +47,13 @@ export default function BoardPage() {
             gender={user.gender}
             intro={user.intro}
             image={user.image || 'https://placehold.co/143'}
-            onChat={() => navigate('/chat')}
+            onChat={() => navigate('/chat', {
+              state: {
+                targetUser: user.username,      // 이름
+                targetImage: user.image         // 프로필 이미지
+  }
+})}
+
           />
         ))}
       </div>
