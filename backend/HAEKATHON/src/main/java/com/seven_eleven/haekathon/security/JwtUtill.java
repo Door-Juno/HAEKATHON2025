@@ -1,34 +1,63 @@
 package com.seven_eleven.haekathon.security;
 
-import com.seven_eleven.haekathon.domain.User;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Component
 public class JwtUtill {
-    // JWT 비밀키와 만료시간 설정
-    // 비밀키는 절대 외부에 노출되면 안됨
-    // 만료시간은 1시간으로 설정
-    // 비밀키는 256비트 이상이어야 함 (long 도배한 이유)
-    private final String SECRET = "haekathon_super_secure_secret_key_long_long_long_long_long_long_long_long_long_long_long";
-    private final long EXPIRATION = 1000 * 60 * 60 ;// 1시간
 
-    // JWT 생성에 사용할 비밀키
-    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    private final Key key = Keys.hmacShaKeyFor("yourSecretKey123!yourSecretKey123!".getBytes(StandardCharsets.UTF_8));
+    private final long EXPIRATION_TIME = 86400000; // 1 day
 
-    // JWT 생성
-    public String generateToken(User user){
+    public String generateToken(Long userId) {
         return Jwts.builder()
-                .setSubject(user.getUserid())
-                .claim("userId", user.getId())
-                .claim("name", user.getName())
+                .setSubject(String.valueOf(userId))
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        System.out.println("🧪 Authorization Header = " + bearerToken);
+        if(bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    public Authentication getAuthentication(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        String username = claims.getSubject();
+        User principal = new User(username, "", List.of(new SimpleGrantedAuthority("ROLE_USER")));
+        return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
+    }
+
+    public Long getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody();
+        return Long.parseLong(claims.getSubject());  // subject에 userId 있음
+    }
+
 }

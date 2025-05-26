@@ -2,6 +2,7 @@ package com.seven_eleven.haekathon.service;
 
 import com.seven_eleven.haekathon.domain.User;
 import com.seven_eleven.haekathon.dto.SignupRequestDto;
+import com.seven_eleven.haekathon.dto.UserResponseDto;
 import com.seven_eleven.haekathon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -24,30 +31,27 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     // 회원가입
-    public void signup(SignupRequestDto dto , MultipartFile photo){
-        // 사용자 이름 중복 제거
-        if(userRepository.existsByUserid(dto.getUserid())){
-            throw new IllegalArgumentException("이미 존재하는 사용자입니다.");
-        }
-        //사진 저장 처리
-        String photoUrl = null;
-        try {
-            if(photo != null && !photo.isEmpty()){
-                // 사진 저장 로직
-                String filename = UUID.randomUUID() + "_" + photo.getOriginalFilename();
-                Path savePath = Paths.get("uploads", filename);
-                Files.createDirectories(savePath.getParent());// 디렉토리가 없으면 생성한다
-                photo.transferTo(savePath.toFile()); // 파일 저장
-                photoUrl = "/uploads/" + filename; // 저장된 파일의 URL 사용자에게 노출된다.
+    public void signup(SignupRequestDto dto) {
+        String photoPath = null;
+
+        if (dto.getPhotoUrl() != null && !dto.getPhotoUrl().isEmpty()) {
+            // 예시: uploads 디렉토리에 파일 저장
+            String uploadDir = System.getProperty("user.dir") + "/uploads/";
+            String fileName = UUID.randomUUID() + "_" + dto.getPhotoUrl().getOriginalFilename();
+
+            File dest = new File(uploadDir + fileName);
+            dest.getParentFile().mkdirs();
+            try {
+                dto.getPhotoUrl().transferTo(dest);
+            } catch (IOException e) {
+                throw new RuntimeException("파일 저장 실패", e);
             }
-        }
-        catch (Exception e) {
-            throw new RuntimeException("사진 저장에 실패했습니다.", e);
+            // DB에는 상대경로로 저장
+            photoPath = "/uploads/" + fileName; // 저장된 파일의 경로
         }
 
         User user = User.builder()
                 .userid(dto.getUserid())
-                // 비밀번호 암호화
                 .password(passwordEncoder.encode(dto.getPassword()))
                 .name(dto.getName())
                 .major(dto.getMajor())
@@ -55,9 +59,24 @@ public class UserService {
                 .grade(dto.getGrade())
                 .gender(dto.getGender())
                 .description(dto.getDescription())
-                .photoUrl(photoUrl) // 사진 URL
+                .photoUrl(photoPath)
                 .build();
+
         userRepository.save(user);
+    }
+
+
+    public List<UserResponseDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserResponseDto::from)
+                .collect(Collectors.toList());
+    }
+
+    public List<UserResponseDto> getAllUsersNotMe(Long currentUserId) {
+        return userRepository.findAll().stream()
+                .filter(user -> !user.getId().equals(currentUserId))
+                .map(UserResponseDto::from)
+                .collect(Collectors.toList());
     }
 }
 

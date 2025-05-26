@@ -1,22 +1,21 @@
-//SignupPage.jsx
 // src/pages/SignupPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InputBox from '../components/inputBox';
-//import Button from '../components/Button';
 import './SignupPage.css';
+import api from '../api/axios';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    username: '',
-    userId: '',
-    password: '',
+    name: '',            // 이름
+    userid: '',          // 아이디
+    password: '',        // 비밀번호
     major: '',
     studentId: '',
     grade: '',
     gender: '',
-    intro: '',
-    profileImage: null,
+    description: '',     // 자기소개
+    photoUrl: null       // 이미지 파일
   });
 
   const [preview, setPreview] = useState(null);
@@ -33,25 +32,38 @@ export default function SignupPage() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFormData({ ...formData, profileImage: file });
+      setFormData({ ...formData, photoUrl: file });
       setPreview(URL.createObjectURL(file));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const existingUsers = JSON.parse(localStorage.getItem('users')) || [];
+    try {
+      const form = new FormData();
+      form.append('name', formData.name);
+      form.append('userid', formData.userid);
+      form.append('password', formData.password);
+      form.append('major', formData.major);
+      form.append('studentId', formData.studentId);
+      form.append('grade', formData.grade);
+      form.append('gender', formData.gender);
+      form.append('description', formData.description);
+      if (formData.photoUrl) {
+        form.append('photoUrl', formData.photoUrl);
+      }
 
-    const newUser = {
-      ...formData,
-      image: preview || '', // 이미지 경로 저장용 (지금은 임시)
-    };
+      await api.post('/api/signup', form, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
-    const updatedUsers = [...existingUsers, newUser];
-    localStorage.setItem('users', JSON.stringify(updatedUsers));
-
-    alert('회원가입 완료!');
-    navigate('/');
+      alert('회원가입 성공');
+      navigate('/');
+    } catch (error) {
+      alert('회원가입 실패: ' + (error.response?.data?.message || '서버 오류'));
+    }
   };
 
   return (
@@ -62,83 +74,12 @@ export default function SignupPage() {
         <div className="form-left">
           <InputBox
             label="Username"
-            value={formData.username}
-            onChange={handleChange('username')}
+            value={formData.name}
+            onChange={handleChange('name')}
           />
           <InputBox
             label="ID"
-            value={formData.userId}
-            onChange={handleChange('userId')}
+            value={formData.userid}
+            onChange={handleChange('userid')}
           />
           <InputBox
-            label="Password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange('password')}
-          />
-          <InputBox
-            label="Major"
-            value={formData.major}
-            onChange={handleChange('major')}
-          />
-          <InputBox
-            label="Student ID"
-            value={formData.studentId}
-            onChange={handleChange('studentId')}
-          />
-
-          <label>학년</label>
-          <div className="grade-buttons">
-            {[1, 2, 3, 4].map((num) => (
-              <button
-                key={num}
-                type="button"
-                className={formData.grade === String(num) ? 'selected' : ''}
-                onClick={() => handleSelect('grade', String(num))}
-              >
-                {num}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 오른쪽 폼 */}
-        <div className="form-right">
-          <label>프로필 이미지</label>
-          <input type="file" accept="image/*" onChange={handleImageChange} />
-          {preview && (
-            <img src={preview} alt="preview" className="profile-preview" />
-          )}
-
-          <label>성별</label>
-          <div className="gender-buttons">
-            {['남성', '여성'].map((g) => (
-              <button
-                key={g}
-                type="button"
-                className={formData.gender === g ? 'selected' : ''}
-                onClick={() => handleSelect('gender', g)}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
-
-          <label>자기소개</label>
-          <textarea
-            name="intro"
-            value={formData.intro}
-            onChange={handleChange('intro')}
-            rows={5}
-          />
-        </div>
-
-        <div className="form-submit">
-          <button type="submit" className="signup-btn">
-            Sign Up
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}

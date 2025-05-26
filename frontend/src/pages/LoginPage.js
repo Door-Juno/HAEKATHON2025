@@ -1,10 +1,10 @@
-//LoginPage.jsx
 // src/pages/LoginPage.jsx
 import React, { useState, useContext } from 'react';
 import InputBox from '../components/inputBox';
 import Button from '../components/Button';
 import { useNavigate } from 'react-router-dom';
 import UserContext from '../UserContext';
+import api from '../api/axios';
 import './LoginPage.css';
 
 export default function LoginPage() {
@@ -13,19 +13,28 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { setUsername } = useContext(UserContext);
 
-  const handleLogin = () => {
-    const users = JSON.parse(localStorage.getItem('users')) || [];
+  // JWT 로그인 요청
+  const handleLogin = async () => {
+    try {
+      const response = await api.post('/api/login', {
+        userid: id,
+        password: password,
+      });
 
-    const matchedUser = users.find(
-      (user) => user.userId === id && user.password === password
-    );
+      const { token, name } = response.data;
 
-    if (matchedUser) {
-      alert(`${matchedUser.username}님 환영합니다!`);
-      setUsername(matchedUser.username); // context에 저장
+      // 토큰과 유저명 저장
+      localStorage.setItem('token', token);
+      localStorage.setItem('username', name);
+      setUsername(name);
+
+      // axios 기본 헤더 설정
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+      alert(`${name}님 환영합니다!`);
       navigate('/board');
-    } else {
-      alert('ID 또는 비밀번호가 틀렸습니다.');
+    } catch (error) {
+      alert("로그인 실패: " + (error.response?.data?.message || "서버 오류"));
     }
   };
 
@@ -45,10 +54,4 @@ export default function LoginPage() {
           onChange={(e) => setPassword(e.target.value)}
         />
         <Button label="Login" onClick={handleLogin} />
-        <div className="signup-link" onClick={() => navigate('/signup')}>
-          Sign up
-        </div>
-      </div>
-    </div>
-  );
-}
+        <div className="signup
