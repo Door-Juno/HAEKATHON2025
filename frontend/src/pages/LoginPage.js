@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-  const { setUsername } = useContext(UserContext);
+  const {setUsername} = useContext(UserContext);
 
   // JWT 로그인 요청
   const handleLogin = async () => {
@@ -21,7 +21,7 @@ export default function LoginPage() {
         password: password,
       });
 
-      const { token, name } = response.data;
+      const {token, name} = response.data;
 
       // 토큰과 유저명 저장
       localStorage.setItem('token', token);
@@ -37,21 +37,26 @@ export default function LoginPage() {
       alert("로그인 실패: " + (error.response?.data?.message || "서버 오류"));
     }
   };
-
   return (
-    <div className="login-page">
-      <div className="login-wrapper">
-        <h1 className="login-title">밥먹쟈</h1>
-        <InputBox
-          label="ID"
-          value={id}
-          onChange={(e) => setId(e.target.value)}
-        />
-        <InputBox
-          label="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button label="Login" onClick={handleLogin} />
-        <div className="signup
+      <div className="login-page">
+        <div className="login-wrapper">
+          <h1 className="login-title">밥먹쟈</h1>
+          <InputBox
+              label="ID"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+          />
+          <InputBox
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button label="Login" onClick={handleLogin} />
+          <div className="signup-link" onClick={() => navigate('/signup')}>
+            Sign up
+          </div>
+        </div>
+      </div>
+  );
+}
