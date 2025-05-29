@@ -1,6 +1,7 @@
-// src/pages/ChatPage.js
 import React, { useEffect, useState, useContext, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import SockJS from 'sockjs-client';
+import { Client } from '@stomp/stompjs';
 import UserContext from '../UserContext';
 import InputBox from '../components/inputBox';
 import Button from '../components/Button';
@@ -10,7 +11,7 @@ import './ChatPage.css';
 export default function ChatPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { username } = useContext(UserContext);
+  const { username, userId } = useContext(UserContext);
 
   const {
     roomId: initialRoomId,
@@ -22,27 +23,30 @@ export default function ChatPage() {
   const [roomId, setRoomId] = useState(initialRoomId || null);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
+  const [chatRooms, setChatRooms] = useState([]);
+  const [stompClient, setStompClient] = useState(null);
   const messagesEndRef = useRef(null);
 
-  // 채팅방 생성 or 조회
+  /*
+  useEffect(() => {
+    api.get('/api/chatrooms/summary')
+        .then(res => {
+          setChatRooms(res.data);
+        })
+        .catch(err => console.error("❌ 채팅방 목록 불러오기 실패:", err));
+  }, []);
+  */
   useEffect(() => {
     if (!targetUserId) return;
 
-    api.post('/api/chatrooms', null, {
-      params: { targetUserId }
-    }).then(res => {
-      const roomIdFromServer = res.data.roomId ?? res.data.id;
-      if (roomIdFromServer) {
-        setRoomId(roomIdFromServer);
-      } else {
-        console.warn("❌ roomId 없음", res.data);
-      }
-    }).catch(err => {
-      console.error("❌ 채팅방 생성 실패:", err);
-    });
+    api.post('/api/chatrooms', null, { params: { targetUserId } })
+        .then(res => {
+          const roomIdFromServer = res.data.roomId ?? res.data.id;
+          if (roomIdFromServer) setRoomId(roomIdFromServer);
+        })
+        .catch(err => console.error("❌ 채팅방 생성 실패:", err));
   }, [targetUserId]);
 
-  // 메시지 불러오기 + 읽음 처리 (polling 포함)
   useEffect(() => {
     if (!roomId) return;
 
@@ -52,50 +56,86 @@ export default function ChatPage() {
           params: { page: 0, size: 50 }
         });
         setMessages(res.data.content);
-
         await api.post(`/api/chatrooms/${roomId}/messages/read`);
-        console.log("✅ 읽음 처리 완료");
       } catch (err) {
-        console.error("❌ 메시지 갱신 또는 읽음 처리 실패:", err);
+        console.error("❌ 메시지 로딩 실패:", err);
       }
     };
 
     fetchMessagesAndMarkRead();
-    const interval = setInterval(fetchMessagesAndMarkRead, 5000);
-    return () => clearInterval(interval);
   }, [roomId]);
 
-  // 자동 스크롤 아래로
+  useEffect(() => {
+    if (!roomId) return;
+
+    const socket = new SockJS('http://localhost:8080/ws-chat');
+    const client = new Client({
+      webSocketFactory: () => socket,
+      onConnect: () => {
+        client.subscribe(`/sub/chat/room/${roomId}`, (msg) => {
+          const newMessage = JSON.parse(msg.body);
+          setMessages(prev => [...prev, {
+            ...newMessage,
+            content : newMessage.message,
+            timestamp: new Date(),
+            isRead: true
+          }]);
+        });
+        setStompClient(client);
+      },
+    });
+
+    client.activate();
+
+    return () => {
+      if (client) {
+        client.deactivate();
+      }
+    };
+  }, [roomId]);
+
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages]);
 
-  // 메시지 전송
   const handleSend = async () => {
-    if (!roomId || !message.trim()) {
-      console.warn('roomId 없음 또는 빈 메세지');
+    if (!roomId || !userId || !message.trim()) {
+      console.warn("🚨 WebSocket 메시지 전송 실패: 필드 누락", { roomId, userId, message });
       return;
     }
+
+    const payload = {
+      type: "TALK",
+      roomId,
+      senderId: userId,
+      senderName: username,
+      message
+    };
+
     try {
-      const res = await api.post(`/api/chatrooms/${roomId}/messages`, {
-        content: message
-      });
-      setMessages(prev => [...prev, res.data]);
+      if (stompClient) {
+        stompClient.publish({
+          destination: "/pub/chat/message",
+          body: JSON.stringify(payload),
+        });
+      }
+      // API 방식 메세지 보내기
+      //await api.post(`/api/chatrooms/${roomId}/messages`, { content: message });
       setMessage('');
     } catch (err) {
-      console.error('❌ 메세지 전송 실패', err);
+      console.error('❌ 메시지 전송 실패', err);
     }
   };
+
 
   return (
       <div className="chat-container">
         <div className="chat-list">
-          <h3>채팅 목록</h3>
-          <div className="chat-list-placeholder">← 목록은 추후 구현 예정</div>
+          <h3> 채팅목록</h3>
+          <div className = "chat-list-placeholder"> 아직 채팅목록이 없습니다.</div>
         </div>
-
         <div className="chat-main">
           <div className="chat-header">
             <div className="chat-back" onClick={() => navigate('/board')}>← 뒤로가기</div>
@@ -110,12 +150,12 @@ export default function ChatPage() {
           <div className="chat-messages">
             {[...messages]
                 .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
-                .map((msg) => (
-                    <div key={msg.messageId} className={`chat-message ${msg.senderName === username ? 'me' : 'other'}`}>
+                .map((msg, index) => (
+                    <div
+                        key={msg.messageId ?? `msg-${msg.senderId}-${msg.timestamp ?? index}`}
+                        className={`chat-message ${msg.senderName === username ? 'me' : 'other'}`}
+                    >
                       <strong>{msg.senderName}:</strong> {msg.content}
-                      <div className="chat-meta">
-                        {msg.isRead ? '✔✔ 읽음' : '✔ 안읽음'} | {new Date(msg.timestamp).toLocaleTimeString()}
-                      </div>
                     </div>
                 ))}
             <div ref={messagesEndRef} />

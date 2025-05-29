@@ -43,7 +43,7 @@ public class MessageService {
     // 채팅방 내 메세지 페이징 조회 (최신순으로)
     public Page<Message> getMessages(Long chatRoomId, int page, int size){
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(()-> new IllegalArgumentException("채팅방이 존재ㅏ지 않습니다."));
+                .orElseThrow(()-> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
 
         return messageRepository.findByChatRoomOrderByTimestampDesc(chatRoom, PageRequest.of(page,size));
     }

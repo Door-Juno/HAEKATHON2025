@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/swagger-resources/**",
                                 "/swagger-ui.html",
                                 "/webjars/**",
-                                "/uploads/**"
+                                "/uploads/**",
+                                "/ws-chat/**" // WebSocket 엔드포인트
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
