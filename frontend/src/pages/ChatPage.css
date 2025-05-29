@@ -4,7 +4,6 @@
   height: 100vh;
   font-family: 'Pretendard', sans-serif;
 }
-
 /* 왼쪽: 채팅 목록 */
 .chat-list {
   width: 30%;
@@ -24,6 +23,7 @@
   text-align: center;
   margin-top: 100px;
 }
+
 
 /* 오른쪽: 채팅 메인 */
 .chat-main {
@@ -152,4 +152,78 @@
 
 .chat-input-area button:hover {
   background-color: #4b72fa;
+}
+
+.chat-room-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px;
+  border-radius: 8px;
+  background-color: #ffffff;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.chat-room-item:hover {
+  background-color: #e9e9e9;
+}
+
+.chat-room-item.active {
+  background-color: #dbe4ff;
+}
+
+.chat-room-item img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.chat-room-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.chat-room-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-room-last {
+  font-size: 13px;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 4px;
+}
+
+.chat-room-meta {
+  text-align: right;
+  font-size: 12px;
+  color: #888;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.chat-room-time {
+  font-size: 12px;
+}
+
+.chat-room-unread {
+  background-color: #ff4d4f;
+  color: white;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: bold;
 }

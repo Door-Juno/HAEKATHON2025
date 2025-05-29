@@ -18,56 +18,55 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ChatRoomService {
+
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
 
-    // 채팅방 생성
+    /**
+     * 채팅방 생성 (중복 방지 - roomKey 기준)
+     */
     @Transactional
-    public ChatRoom createChatRoom(Long user1Id, Long user2Id){
-        if(user1Id.equals(user2Id)) {
-            throw new IllegalArgumentException("자기 자신과는 채팅할 수 없습니다.");
+    public ChatRoom createChatRoom(Long myId, Long targetUserId) {
+        String roomKey = generateRoomKey(myId, targetUserId);
+        Optional<ChatRoom> existing = chatRoomRepository.findByRoomKey(roomKey);
+
+        if (existing.isPresent()) {
+            return existing.get(); // 이미 존재하는 방
         }
 
-        User user1 = userRepository.findById(user1Id)
-                .orElseThrow(() -> new IllegalArgumentException("User1이 존재하지 않습니다."));
-        User user2 = userRepository.findById(user2Id)
-                .orElseThrow(() -> new IllegalArgumentException("User2가 존재하지 않습니다."));
+        User user1 = userRepository.findById(myId).orElseThrow(() -> new IllegalArgumentException("내 정보 없음"));
+        User user2 = userRepository.findById(targetUserId).orElseThrow(() -> new IllegalArgumentException("상대 정보 없음"));
 
-        // 이미 존재하는 채팅방인지 확인
-        Optional<ChatRoom> existing = chatRoomRepository.findByUser1AndUser2(user1, user2);
-        if(existing.isPresent()){
-            return existing.get();
-        }
-        existing = chatRoomRepository.findByUser2AndUser1(user2, user1);
-        if(existing.isPresent()){
-            return existing.get();
-        }
-
-        String roomkey = generateRoomKey(user1Id, user2Id);
-        // 존재 하지 않는다면 새 채팅방 생성
-        ChatRoom room = ChatRoom.builder()
+        ChatRoom newRoom = ChatRoom.builder()
                 .user1(user1)
                 .user2(user2)
-                .roomKey(user1.getId() + "_" + user2.getId()) // roomKey는 user1과 user2의 ID를 조합하여 생성
+                .roomKey(roomKey)
                 .build();
-        return chatRoomRepository.save(room);
+
+        return chatRoomRepository.save(newRoom);
     }
 
-    // 내가 속한 채팅방 리스트
+    /**
+     * 내 채팅방 목록 조회
+     */
     public List<ChatRoom> getChatRoomsForUser(Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
         return chatRoomRepository.findByUser1OrUser2(user, user);
     }
 
-    // 채팅방 하나 조회
+    /**
+     * 채팅방 단일 조회
+     */
     public ChatRoom getChatRoomById(Long roomId) {
         return chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new IllegalArgumentException("채팅방이 존재하지 않습니다."));
     }
 
-    // 채팅방 요약 정보 리스트
+    /**
+     * 요약 정보 조회
+     */
     public List<ChatRoomSummaryDto> getChatRoomSummaries(Long myId) {
         User me = userRepository.findById(myId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자가 존재하지 않습니다."));
@@ -95,6 +94,10 @@ public class ChatRoomService {
                     .build();
         }).collect(Collectors.toList());
     }
+
+    /**
+     * 항상 동일한 roomKey 생성 (id 순 정렬)
+     */
     private String generateRoomKey(Long id1, Long id2) {
         return id1 < id2 ? id1 + "_" + id2 : id2 + "_" + id1;
     }
