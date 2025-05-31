@@ -1,9 +1,8 @@
-// src/UserContext.js
 import { createContext } from 'react';
 
 const UserContext = createContext({
   username: '',
-  setUsername: () => {},
+  userId: null, // 또는 0
 });
 
 export default UserContext;
